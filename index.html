@@ -1,0 +1,305 @@
+<html>
+	<head>
+		<title>Tic Tac Toe Game!!!</title>
+		<style type="text/css">
+		table
+		{
+			display: none;
+
+		}
+		</style>
+	</head>
+	<body>
+		<div id="users">
+			</div>
+			<div id="nickWrap" align = "center">
+				<p>Enter Your Name:</p>
+
+				<form id="setNick">
+					<input size="35" id="nickname"></input>
+					<input type="submit"></input>
+					<p id="nickError"></p>
+				</form>
+			</div>
+			<div id="waiting" align="center"> </div>
+			<table width="300" height="300" border="1" align="center" id="contentWrap">
+			<tr>
+					<td colspan="3"><div id="msg" style="height:30px;" align="center">
+						Message: Start..
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="3">Game Between :: <span id="usr" align="center"></span>
+					<div id="users" align="center">
+			</div></td>
+			</tr>
+			<tr>
+				<td><a href="javascript:userChoice('0')"><img id="0" src="images/tic_tac_toe/blank.png" border="0" height="100" width="100" name=A alt="Top-Left"></a></td>
+				<td > <a href="javascript:userChoice('1')"><img id="1" src="images/tic_tac_toe/blank.png" border="0" height="100" width="100" name=A alt="Top-Left"></a></td>
+				<td><a href="javascript:userChoice('2')"><img id="2" src="images/tic_tac_toe/blank.png" border="0" height="100" width="100" name=A alt="Top-Left"></a></td>
+			</tr>
+			<tr>
+				<td><a href="javascript:userChoice('3')"><img id="3" src="images/tic_tac_toe/blank.png" border="0" height="100" width="100" name=A alt="Top-Left"></a></td>
+				<td> <a href="javascript:userChoice('4')"><img id="4" src="images/tic_tac_toe/blank.png" border="0" height="100" width="100" name=A alt="Top-Left"></a></td>
+				<td><a href="javascript:userChoice('5')"><img id="5" src="images/tic_tac_toe/blank.png" border="0" height="100" width="100" name=A alt="Top-Left"></a></td>
+			</tr>
+			<tr>
+				<td><a href="javascript:userChoice('6')"><img id="6" src="images/tic_tac_toe/blank.png" border="0" height="100" width="100" name=A alt="Top-Left"></a></td>
+				<td> <a href="javascript:userChoice('7')"><img id="7" src="images/tic_tac_toe/blank.png" border="0" height="100" width="100" name=A alt="Top-Left"></a></td>
+				<td><a href="javascript:userChoice('8')"><img id="8" src="images/tic_tac_toe/blank.png" border="0" height="100" width="100" name=A alt="Top-Left"></a></td>
+			</tr>
+		</table>
+			<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+			<script src="/socket.io/socket.io.js"></script>
+			<script>
+					var send_res = true;
+					var avoidCollapse = false;
+					var socket = io.connect();
+					var board = [-1,-1,-1,-1,-1,-1,-1,-1,-1];
+					var possibility = [0, 1, 2, 0, 4, 8, 0, 3, 6, 1, 4, 7, 2, 5, 8, 3, 4, 5, 6, 7, 8, 2, 4, 6];
+					var bool = true;
+					var counter = 0;
+					var matchOverBool = false;
+					var noWin = true;
+					var inMatch = false;
+					jQuery(function($)
+					{
+						
+						var $nickForm = $('#setNick');
+						var $nickBox = $('#nickname');
+						var $users = $('#users');
+						$nickForm.submit(function(e)
+						{
+							console.log('hi');
+							e.preventDefault();
+
+							socket.emit('new user', $nickBox.val(), function(data)
+							{
+								console.log('hi 2');
+								if (data == 1) 
+								{
+									console.log('if');
+									$('#nickWrap').hide();
+									document.getElementById('waiting').innerHTML = "Waiting for another User...";
+									
+								}
+								else if(data == 2)
+								{
+									console.log('else');
+									//$nickError.html('That userName is Already taken');
+									document.getElementById('nickError').innerHTML = "That userName is Already taken";
+								}
+								else if(data == 3)
+								{
+									document.getElementById('nickError').innerHTML = " Sorry Game Already Started...";
+								}
+
+							});
+							$nickBox.val('');
+						});
+					});
+
+					socket.on('usernames', function(data){
+						var html = ' ';
+						for (var i =0; i< data.length; i++) {
+							html +=data[i] + ' ';
+						}	
+						if(data.length>1)
+						{
+							//$users.html(html);
+							$('#waiting').hide();
+							$('#contentWrap').show();
+							inMatch = true;
+							send_res = true;
+							document.getElementById('usr').innerHTML = html;
+							
+						}
+						else
+						{
+							//$('#contentWrap').show();
+							document.getElementById('usr').innerHTML = html;
+						}
+					});
+
+
+
+					socket.on('win-message', function(data){
+						console.log("Win msg... client "+data+"-"+noWin+"-"+counter);
+						if(data && noWin && counter > 1 && (!matchOverBool))
+						{
+							alert("Sorry Oppenent Left...!!!");
+							location.reload();
+						}
+						else
+						{
+							//console.log("Worst..");
+							alert("Oppenent Left... You Cannot Continue...");
+							location.reload();
+						}
+						//document.getElementById('usr').innerHTML = html;
+					});
+
+
+
+					//socket.on('connect', function() {
+						//console.log(socket);
+							socket.on('new message', function(data){
+							//userChoice(data);
+							//$chat.append(data + "<br/>");
+							//alert("hi");
+							//console.log('got message-->' + data+" avoidCollapse"+avoidCollapse);
+							if(inMatch)
+							{
+								send_res = false;
+								avoidCollapse = false;
+								//console.log(avoidCollapse);
+								//alert("Receive:"+send_res+"---"+data);
+								document.getElementById('msg').innerHTML = "Message: Start...";
+								userChoice(data);
+							}
+						});	
+					//})
+
+					
+
+		
+		function userChoice(a)
+		{
+			console.log("B4 if-->"+avoidCollapse);
+			if(!avoidCollapse && inMatch)
+			{
+				if((!matchOverBool))
+				{
+					var choice = parseInt(a);
+
+					//alert(choice+"---"+send_res);
+					if(send_res)
+					{
+						//var socket = io.connect();
+						avoidCollapse = true;
+						console.log("Send-->"+avoidCollapse);
+						document.getElementById('msg').innerHTML = "Message: Please Wait...";
+						socket.emit('send message', choice);
+						
+						send_res = false;
+
+
+						
+					}
+					else
+					{
+						send_res = true;
+					}
+
+					var image = document.getElementById(a);
+					//alert(image);
+					if (image.src.match("blank"))
+					{
+						counter++;
+						if (bool) 
+						{
+							image.src = "images/tic_tac_toe/x.jpg";
+							bool = false;
+							board[choice] = 1;
+						}
+						else
+						{
+							image.src = "images/tic_tac_toe/o.png";
+							bool = true;
+							board[choice] = 0;
+						}
+						if (counter>4) 
+						{
+							winP1 = 0;
+							winP2 = 0;
+							winCounter = 0;
+							
+							for (var i=0; i < possibility.length; i++) 
+							{
+								var t = board[possibility[i]];
+								winCounter++;
+								if (t == 0)
+								{
+									winP1++;
+								}
+								else if(t == 1)
+								{
+									winP2++;
+								}
+								
+								if (winP1 == 3 && winCounter == 3) 
+								{
+									matchOver();
+									//alert("Player 2 Win");
+									document.getElementById('msg').innerHTML = "Message: Player 2 Win...";
+									counter = 9;
+									console.log(counter+"<<"+matchOverBool+"<<"+noWin);
+									noWin = false;
+								}
+								else if(winP2 ==3 && winCounter == 3)
+								{
+									matchOver();
+									//alert("Player 1 Win");
+									document.getElementById('msg').innerHTML = "Message: Player 1 Win...";
+									counter = 9;
+									noWin =false;
+									console.log(counter+"<>"+matchOverBool+"<>"+noWin);
+								}
+								else if (winCounter == 3) 
+								{
+									winP2 = winP1 = winCounter =0;
+									console.log(counter+">>"+matchOverBool+">>"+noWin);
+								}
+								if (counter == 9 && matchOver && noWin) 
+								{
+									document.getElementById('msg').innerHTML = "Message: Match Tied...";
+									console.log(counter+"__"+matchOverBool+"__"+noWin);
+								}
+
+							}
+						}
+					
+					}
+					else
+					{
+						
+						
+					}
+				}
+				else
+				{
+					alert("Game Over!!!!");
+				}
+			}
+			else if (inMatch)
+			{
+				if(counter == 9 && noWin)
+						{
+							//alert("Match Over");
+							document.getElementById('msg').innerHTML = "Message: Match Over....";
+							console.log(counter+"=="+matchOverBool+"=="+noWin);
+						}
+						else if(!matchOverBool)
+						{
+							document.getElementById('msg').innerHTML = "Message: Please Wait....";
+							console.log(counter+"--"+matchOverBool+"--"+noWin);
+						}
+						else
+						{
+				//alert("Please Wait....");
+				//document.getElementById('msg').innerHTML = "Message: Please Wait....";
+				//console.log(counter+"--"+matchOverBool+"--"+noWin);
+						}
+			}
+		}
+
+		function matchOver()
+		{
+			board = [-1,-1,-1,-1,-1,-1,-1,-1,-1];
+			matchOverBool =true;
+		}
+
+			</script>
+	</body>
+</html>

@@ -1,0 +1,84 @@
+
+<script src="/socket.io/socket.io.js"></script>
+<style type="text/css">
+		table
+		{
+			display: none;
+		}
+		</style>
+<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+<script>
+
+					jQuery(function($)
+					{
+						var socket = io.connect();			
+						var $nickForm = $('#setNick');
+						var $nickBox = $('#nickname');
+						var $users = $('#users');
+						$nickForm.submit(function(e)
+						{
+							console.log('hi');
+							e.preventDefault();
+
+							socket.emit('new user', $nickBox.val(), function(data)
+							{
+								console.log('hi 2');
+								if (data) 
+								{
+									console.log('if');
+									$('#nickWrap').hide();
+									$('#contentWrap').show();
+								}
+								else
+								{
+									console.log('else');
+									//$nickError.html('That userName is Already taken');
+									document.getElementById('nickError').innerHTML = "That userName is Already taken";
+								}
+
+							});
+							$nickBox.val('');
+						});
+					});
+
+				
+
+</script>
+<html>
+<body>
+<div id="users">
+</div>
+<div id="nickWrap" align = "center">
+	<p>Enter User Name:</p>
+
+	<form id="setNick">
+		<input size="35" id="nickname"></input>
+		<input type="submit"></input>
+	</form>
+	<p id="nickError"></p>
+</div>
+
+
+
+
+<table width="300" height="300" border="1" align="center" id="contentWrap">
+<tr>
+	<td><a href="javascript:userChoice('0')"><img id="0" src="images/tic_tac_toe/blank.png" border="0" height="100" width="100" name=A alt="Top-Left"></a></td>
+	<td > <a href="javascript:userChoice('1')"><img id="1" src="images/tic_tac_toe/blank.png" border="0" height="100" width="100" name=A alt="Top-Left"></a></td>
+	<td><a href="javascript:userChoice('2')"><img id="2" src="images/tic_tac_toe/blank.png" border="0" height="100" width="100" name=A alt="Top-Left"></a></td>
+</tr>
+</table>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

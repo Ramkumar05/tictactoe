@@ -17,7 +17,7 @@ Note: Path will be differ based on where you placed the Engine
 
 6) run rake admin_authentication:install:migrations.
 
-Note :: If you face "Incorrect MySQL client library version!" problem just give "gem uninstall mysql2" and then "gem install mysql2" after this run rake db
+Note: If you face "Incorrect MySQL client library version!" problem just give "gem uninstall mysql2" and then "gem install mysql2" after this run rake db
 
 7) run rake db:migrate.
 
@@ -27,9 +27,9 @@ Note :: If you face "Incorrect MySQL client library version!" problem just give 
       before_action :authenticate_user!
       
 10) Add below line to routes.rb file.
-  mount AdminAuthentication::Engine, :at => '/' 
+  mount AdminAuthentication::Engine, :at => '/'
   
-  Note :: Must be in last line
+Note: Must be in last line
   
 11)Add some users to 'admin_authentication_authorized_users' table.
       this is the example how to add users
